@@ -49,10 +49,12 @@ jobs:
     steps:
       - restore_cache:
           key: v1-assets-{{ .Environment.CIRCLE_SHA1 }}
-      - run: sudo apt-get update && sudo apt-get install -y awscli
+      - run: sudo apt-get update && sudo apt-get install -qq -y python-pip libpython-dev
+      - run: curl -O https://bootstrap.pypa.io/get-pip.py && sudo python get-pip.py
+      - run: sudo pip install -q awscli --upgrade
       - run: aws configure list
       - run: aws --version
-      - run: aws --region=eu-central-1 s3 sync dist s3://pansarshrek-webapp/$CIRCLE_BUILD_NUM --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
+      - run: aws s3 sync dist s3://pansarshrek-webapp/$CIRCLE_BUILD_NUM --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
 
 workflows:
   version: 2
