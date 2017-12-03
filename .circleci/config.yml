@@ -36,11 +36,19 @@ jobs:
       # run tests!
       - run: npm run build
 
+      # cache it
+      - save_cache:
+          key: v1-assets-{{ .Environment.CIRCLE_SHA1 }}
+          paths:
+            - ~/dist
+
   deploy:
     docker:
       - image: circleci/node:7.10
     working_directory: ~/repo
     steps:
+      - restore_cache:
+          key: v1-assets-{{ .Environment.CIRCLE_SHA1 }}
       - run: ls dist
       - run: sudo apt-get update && apt-get install -y awscli
       - run: aws s3 sync dist s3://pansarshrek-webapp/$CIRCLE_BUILD_NUM --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
